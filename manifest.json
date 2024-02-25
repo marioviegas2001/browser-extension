@@ -1,0 +1,10 @@
+{
+    "manifest_version": 3,
+    "name": "ClearView",
+    "description": "Extension for news analysis",
+    "version": "1.0",
+    "action": {
+      "default_popup": "index.html",
+      "default_icon": "assets/Logo.png"
+    }
+  }
