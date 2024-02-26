@@ -1,14 +1,13 @@
-
 /* *********************************************************
-* Enable/Disable Chrome extension based on .pt ending link *
+* Receive data from content.js and send it to popup.js     *
 ************************************************************/
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    const updatedUrl = changeInfo.url || tab.url; // Fallback to tab.url if changeInfo.url is undefined
-  
-    if (updatedUrl && updatedUrl.includes('.pt')) {
-      chrome.action.enable(tabId);
-    } else {
-      chrome.action.disable(tabId);
-    }
-  });
-  
+let extractedData = null;
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'extractedContent') {
+    extractedData = message.data;
+  } else if (message.action === 'getExtractedData') {
+    // Send the extracted data to the popup script
+    sendResponse({ data: extractedData });
+  }
+});

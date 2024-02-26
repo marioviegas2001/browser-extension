@@ -1,0 +1,13 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+#articleText {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
