@@ -5,33 +5,123 @@ const websiteSelectors = {
     "descriptionSelector": ".story__blurb p",
     "articleContentSelector": ".story__body"
   }
-  //Add more websites and their respective selectors
 };
+// Initialize variables to store extracted data
+let headlineToDisplay = '';
+let descriptionToDisplay = '';
+let articleContentToDisplay = '';
+let datePublishedToDisplay = '';
+let dateModifiedToDisplay = '';
+let dateCreatedToDisplay = '';
+let articleSectionToDisplay = '';
+let authorToDisplay = [];
+let keywordsToDisplay = [];
+let urlToDisplay = '';
 
-// Extract selectors based on current website domain
+// Find all script tags on the page
+const scriptTags = document.querySelectorAll('script');
 const currentWebsite = window.location.hostname;
 const selectors = websiteSelectors[currentWebsite];
-if (selectors) {
-  // Extract title
-  const title = document.querySelector(selectors.titleSelector)?.textContent.trim() || '';
 
-  // Extract description
-  const descriptionElement = document.querySelector(selectors.descriptionSelector);
-  const description = descriptionElement ? descriptionElement.textContent.trim() : '';
 
-  // Extract article content
-  const storyBodyElement = document.querySelector(selectors.articleContentSelector);
-  const articleContent = storyBodyElement ? storyBodyElement.innerHTML : '';
+/* TAKES DATA FROM THE NEWSARTICLE SCRIPT IF IT EXISTS */
+// Iterate over each script tag
+for (let i = 0; i < scriptTags.length; i++) {
+  const scriptTag = scriptTags[i];
+  try {
+    // Try parsing the content of the script tag as JSON
+    const jsonData = JSON.parse(scriptTag.textContent.trim());
+    
+    // Check if the parsed JSON data is of type NewsArticle
+    if (jsonData['@type'] === 'NewsArticle') {
+      console.log('Extracted JSON-LD:', jsonData);
+      
+      // Extract and print specific fields from the JSON
+      const { headline, 
+        description, 
+        dateCreated, 
+        dateModified, 
+        datePublished, 
+        articleSection,
+        articleBody,
+        author, 
+        keywords, 
+        url} = jsonData;
 
-  // Send the extracted information back to the background script
-  chrome.runtime.sendMessage({
-    action: 'extractedContent',
-    data: {
-      title: title,
-      description: description,
-      articleContent: articleContent
+      // Assign values from JSON-LD if available
+      headlineToDisplay = headline || headlineToDisplay;
+      descriptionToDisplay = description || descriptionToDisplay;
+      datePublishedToDisplay = datePublished || datePublishedToDisplay;
+      dateModifiedToDisplay = dateModified || dateModifiedToDisplay;
+      dateCreatedToDisplay = dateCreated || datePublishedToDisplay; // Assuming dateCreated is equivalent to datePublished if not available
+      articleSectionToDisplay = articleSection || articleSectionToDisplay;
+      articleContentToDisplay = articleBody || articleContentToDisplay;
+      authorToDisplay = author || authorToDisplay;
+      keywordsToDisplay = keywords || keywordsToDisplay;
+      urlToDisplay = url || urlToDisplay;
+      
+      break;
     }
-  });
-} else {
-  console.log('Selectors for current website not found.');
+  } catch (error) {
+    // If parsing as JSON fails, continue to the next script tag
+    console.error('Error parsing JSON:', error);
+  }
 }
+
+/* TAKES DATA FROM THE MANUALLY MADE JSON IN CASE DATA IS MISSING*/
+if (!headlineToDisplay && selectors) {
+  // Extract title
+  headlineToDisplay = document.querySelector(selectors.titleSelector)?.textContent.trim() || '';
+}
+if (!descriptionToDisplay && selectors) {
+  // Extract lead
+  const descriptionElement = document.querySelector(selectors.descriptionSelector);
+  descriptionToDisplay = descriptionElement ? descriptionElement.textContent.trim() : '';
+}
+
+if (!articleContentToDisplay && selectors) {
+   // Extract article content
+   const storyBodyElement = document.querySelector(selectors.articleContentSelector);
+   articleContentToDisplay = storyBodyElement ? storyBodyElement.innerHTML : '';
+}
+
+
+// Log the extracted data
+console.log('Headline:', headlineToDisplay );
+console.log('Description:', descriptionToDisplay);
+console.log('Date Published:', datePublishedToDisplay );
+console.log('Date Modified:', dateModifiedToDisplay);
+console.log('Date Created:', dateCreatedToDisplay);
+console.log('articleSection:', articleSectionToDisplay);
+console.log('articleBody:', articleContentToDisplay );
+console.log('author:', authorToDisplay);
+console.log('keywords:', keywordsToDisplay);
+console.log('url:', urlToDisplay );
+
+// Function to remove HTML tags from a string
+function removeHTMLTags(text) {
+  return text.replace(/<[^>]*>/g, ''); // Replace HTML tags with an empty string
+}
+
+// Remove HTML tags and links from articleContentToDisplay
+const cleanedText = removeHTMLTags(articleContentToDisplay)
+  .replace(/\bhttps?:\/\/\S+/gi, ''); // Remove links starting with http or https
+
+// Split the cleaned text into words
+const words = cleanedText.trim().split(/\s+/);
+
+// Count the number of words
+const wordCount = words.length;
+
+console.log('words:', words);
+console.log('Word Count:', wordCount );
+
+// Create a new element for the word count
+const wordCountElement = document.createElement('div');
+wordCountElement.textContent = `Word Count: ${wordCount}`;
+
+// Find the .story__body div
+const storyBodyDiv = document.querySelector('.headline');
+
+// Append the word count element to the .headline div
+storyBodyDiv.appendChild(wordCountElement);
