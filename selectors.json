@@ -1,0 +1,7 @@
+{
+    "www.publico.pt": {
+      "titleSelector": ".headline",
+      "descriptionSelector": ".story__blurb p",
+      "articleContentSelector": ".story__body"
+    }
+}

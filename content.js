@@ -1,12 +1,3 @@
-// Define the JSON data within the extension's code
-const websiteSelectors = {
-  "www.publico.pt": {
-    "titleSelector": ".headline",
-    "descriptionSelector": ".story__blurb p",
-    "articleContentSelector": ".story__body"
-  }
-};
-
 // Initialize variables to store extracted data
 let headlineToDisplay = '';
 let descriptionToDisplay = '';
@@ -21,8 +12,6 @@ let urlToDisplay = '';
 
 // Find all script tags on the page
 const scriptTags = document.querySelectorAll('script');
-const currentWebsite = window.location.hostname;
-const selectors = websiteSelectors[currentWebsite];
 
 
 /* TAKES DATA FROM THE NEWSARTICLE SCRIPT IF IT EXISTS */
@@ -70,72 +59,87 @@ for (let i = 0; i < scriptTags.length; i++) {
 }
 
 /* TAKES DATA FROM THE MANUALLY MADE JSON IN CASE DATA IS MISSING*/
-if (!headlineToDisplay && selectors) {
-  // Extract title
-  headlineToDisplay = document.querySelector(selectors.titleSelector)?.textContent.trim() || '';
-}
-if (!descriptionToDisplay && selectors) {
-  // Extract lead
-  const descriptionElement = document.querySelector(selectors.descriptionSelector);
-  descriptionToDisplay = descriptionElement ? descriptionElement.textContent.trim() : '';
-}
+// Fetch the selectors data from selectors.json
+fetch(chrome.runtime.getURL('selectors.json'))
+  .then(response => response.json())
+  .then(selectors => {
+    const currentWebsite = window.location.hostname;
+    const websiteSelectors = selectors[currentWebsite];
 
-if (!articleContentToDisplay && selectors) {
-   // Extract article content
-   const storyBodyElement = document.querySelector(selectors.articleContentSelector);
-   articleContentToDisplay = storyBodyElement ? storyBodyElement.innerHTML : '';
-}
+    if (!headlineToDisplay && websiteSelectors) {
+      // Extract title
+      headlineToDisplay = document.querySelector(websiteSelectors.titleSelector)?.textContent.trim() || '';
+    }
+
+    if (!descriptionToDisplay && websiteSelectors) {
+      // Extract description
+      const descriptionElement = document.querySelector(websiteSelectors.descriptionSelector);
+      descriptionToDisplay = descriptionElement ? descriptionElement.textContent.trim() : '';
+    }
+
+    if (!articleContentToDisplay  && websiteSelectors) {
+      // Extract article content
+      const storyBodyElement = document.querySelector(websiteSelectors.articleContentSelector);
+      articleContentToDisplay = storyBodyElement ? storyBodyElement.innerHTML : '';
+    }
+    
+    // Log the extracted data
+    console.log('Headline:', headlineToDisplay );
+    console.log('Description:', descriptionToDisplay);
+    console.log('Date Published:', datePublishedToDisplay );
+    console.log('Date Modified:', dateModifiedToDisplay);
+    console.log('Date Created:', dateCreatedToDisplay);
+    console.log('articleSection:', articleSectionToDisplay);
+    console.log('articleBody:', articleContentToDisplay );
+    console.log('author:', authorToDisplay);
+    console.log('keywords:', keywordsToDisplay);
+    console.log('url:', urlToDisplay );
+
+    // Function to remove HTML tags from a string
+    function removeHTMLTags(text) {
+      return text.replace(/<[^>]*>/g, ''); // Replace HTML tags with an empty string
+    }
+
+    // Remove HTML tags and links from articleContentToDisplay
+    const cleanedText = removeHTMLTags(articleContentToDisplay)
+      .replace(/\bhttps?:\/\/\S+/gi, ''); // Remove links starting with http or https
+
+    // Split the cleaned text into words
+    const words = cleanedText.trim().split(/\s+/);
+
+    // Count the number of words
+    const wordCount = words.length;
+
+    console.log('words:', words);
+    console.log('Word Count:', wordCount );
+    const readingTime = Math.ceil(wordCount / 238);
+
+    // Create a new div container
+    const containerDiv = document.createElement('div');
+    containerDiv.classList.add('word-count-container'); // Add the CSS class to the container
+
+    // Create an h1 element for the header
+    const headerElement = document.createElement('h1');
+    headerElement.textContent = 'News Analysis';
+
+    // Create a new element for the word count
+    const readingTimeElement = document.createElement('div');
+    readingTimeElement.textContent = `Estimated reading time: ${readingTime}min`;
+
+    // Append the header and word count elements to the container
+    containerDiv.appendChild(headerElement);
+    containerDiv.appendChild(readingTimeElement);
+
+    // Find the .story__body div
+    const storyBodyDiv = document.querySelector('.story__header');
+
+    // Append the word count element to the .headline div
+    storyBodyDiv.prepend(containerDiv);
+
+  })
+  .catch(error => {
+    console.error('Error fetching selectors:', error);
+  });
 
 
-// Log the extracted data
-/* console.log('Headline:', headlineToDisplay );
-console.log('Description:', descriptionToDisplay);
-console.log('Date Published:', datePublishedToDisplay );
-console.log('Date Modified:', dateModifiedToDisplay);
-console.log('Date Created:', dateCreatedToDisplay);
-console.log('articleSection:', articleSectionToDisplay);
-console.log('articleBody:', articleContentToDisplay );
-console.log('author:', authorToDisplay);
-console.log('keywords:', keywordsToDisplay);
-console.log('url:', urlToDisplay ); */
 
-// Function to remove HTML tags from a string
-function removeHTMLTags(text) {
-  return text.replace(/<[^>]*>/g, ''); // Replace HTML tags with an empty string
-}
-
-// Remove HTML tags and links from articleContentToDisplay
-const cleanedText = removeHTMLTags(articleContentToDisplay)
-  .replace(/\bhttps?:\/\/\S+/gi, ''); // Remove links starting with http or https
-
-// Split the cleaned text into words
-const words = cleanedText.trim().split(/\s+/);
-
-// Count the number of words
-const wordCount = words.length;
-
-console.log('words:', words);
-console.log('Word Count:', wordCount );
-const readingTime = Math.ceil(wordCount / 238);
-
-// Create a new div container
-const containerDiv = document.createElement('div');
-containerDiv.classList.add('word-count-container'); // Add the CSS class to the container
-
-// Create an h1 element for the header
-const headerElement = document.createElement('h1');
-headerElement.textContent = 'News Analysis';
-
-// Create a new element for the word count
-const readingTimeElement = document.createElement('div');
-readingTimeElement.textContent = `Estimated reading time: ${readingTime}min`;
-
-// Append the header and word count elements to the container
-containerDiv.appendChild(headerElement);
-containerDiv.appendChild(readingTimeElement);
-
-// Find the .story__body div
-const storyBodyDiv = document.querySelector('.story__header');
-
-// Append the word count element to the .headline div
-storyBodyDiv.prepend(containerDiv);
