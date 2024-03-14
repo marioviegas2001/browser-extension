@@ -6,6 +6,7 @@ const websiteSelectors = {
     "articleContentSelector": ".story__body"
   }
 };
+
 // Initialize variables to store extracted data
 let headlineToDisplay = '';
 let descriptionToDisplay = '';
@@ -87,7 +88,7 @@ if (!articleContentToDisplay && selectors) {
 
 
 // Log the extracted data
-console.log('Headline:', headlineToDisplay );
+/* console.log('Headline:', headlineToDisplay );
 console.log('Description:', descriptionToDisplay);
 console.log('Date Published:', datePublishedToDisplay );
 console.log('Date Modified:', dateModifiedToDisplay);
@@ -96,7 +97,7 @@ console.log('articleSection:', articleSectionToDisplay);
 console.log('articleBody:', articleContentToDisplay );
 console.log('author:', authorToDisplay);
 console.log('keywords:', keywordsToDisplay);
-console.log('url:', urlToDisplay );
+console.log('url:', urlToDisplay ); */
 
 // Function to remove HTML tags from a string
 function removeHTMLTags(text) {
@@ -115,13 +116,26 @@ const wordCount = words.length;
 
 console.log('words:', words);
 console.log('Word Count:', wordCount );
+const readingTime = Math.ceil(wordCount / 238);
+
+// Create a new div container
+const containerDiv = document.createElement('div');
+containerDiv.classList.add('word-count-container'); // Add the CSS class to the container
+
+// Create an h1 element for the header
+const headerElement = document.createElement('h1');
+headerElement.textContent = 'News Analysis';
 
 // Create a new element for the word count
-const wordCountElement = document.createElement('div');
-wordCountElement.textContent = `Word Count: ${wordCount}`;
+const readingTimeElement = document.createElement('div');
+readingTimeElement.textContent = `Estimated reading time: ${readingTime}min`;
+
+// Append the header and word count elements to the container
+containerDiv.appendChild(headerElement);
+containerDiv.appendChild(readingTimeElement);
 
 // Find the .story__body div
-const storyBodyDiv = document.querySelector('.headline');
+const storyBodyDiv = document.querySelector('.story__header');
 
 // Append the word count element to the .headline div
-storyBodyDiv.appendChild(wordCountElement);
+storyBodyDiv.prepend(containerDiv);
