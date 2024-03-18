@@ -21,7 +21,7 @@
   }],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://www.publico.pt/*"],
       "css": ["styles.css"],
       "js": ["newsAnalysisConstructor.js" ,"content.js"]
       
