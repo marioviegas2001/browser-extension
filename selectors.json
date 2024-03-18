@@ -1,5 +1,6 @@
 {
     "www.publico.pt": {
+      "containerSelector": ".story__header",
       "titleSelector": ".headline",
       "descriptionSelector": ".story__blurb p",
       "articleContentSelector": ".story__body"

@@ -23,7 +23,7 @@
     {
       "matches": ["<all_urls>"],
       "css": ["styles.css"],
-      "js": ["content.js"]
+      "js": ["newsAnalysisConstructor.js" ,"content.js"]
       
     }
   ]

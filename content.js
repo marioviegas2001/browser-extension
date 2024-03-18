@@ -9,12 +9,13 @@ let articleSectionToDisplay = '';
 let authorToDisplay = [];
 let keywordsToDisplay = [];
 let urlToDisplay = '';
+let imagesInArticle = 0;
 
 // Find all script tags on the page
 const scriptTags = document.querySelectorAll('script');
 
-
 /* TAKES DATA FROM THE NEWSARTICLE SCRIPT IF IT EXISTS */
+
 // Iterate over each script tag
 for (let i = 0; i < scriptTags.length; i++) {
   const scriptTag = scriptTags[i];
@@ -38,12 +39,12 @@ for (let i = 0; i < scriptTags.length; i++) {
         keywords, 
         url} = jsonData;
 
-      // Assign values from JSON-LD if available
+      // Assign values from JSON if available
       headlineToDisplay = headline || headlineToDisplay;
       descriptionToDisplay = description || descriptionToDisplay;
       datePublishedToDisplay = datePublished || datePublishedToDisplay;
       dateModifiedToDisplay = dateModified || dateModifiedToDisplay;
-      dateCreatedToDisplay = dateCreated || datePublishedToDisplay; // Assuming dateCreated is equivalent to datePublished if not available
+      dateCreatedToDisplay = dateCreated || datePublishedToDisplay; // dateCreated is equivalent to datePublished if not available
       articleSectionToDisplay = articleSection || articleSectionToDisplay;
       articleContentToDisplay = articleBody || articleContentToDisplay;
       authorToDisplay = author || authorToDisplay;
@@ -53,7 +54,6 @@ for (let i = 0; i < scriptTags.length; i++) {
       break;
     }
   } catch (error) {
-    // If parsing as JSON fails, continue to the next script tag
     console.error('Error parsing JSON:', error);
   }
 }
@@ -65,6 +65,7 @@ fetch(chrome.runtime.getURL('selectors.json'))
   .then(selectors => {
     const currentWebsite = window.location.hostname;
     const websiteSelectors = selectors[currentWebsite];
+    let containerElement = '';
 
     if (!headlineToDisplay && websiteSelectors) {
       // Extract title
@@ -82,9 +83,19 @@ fetch(chrome.runtime.getURL('selectors.json'))
       const storyBodyElement = document.querySelector(websiteSelectors.articleContentSelector);
       articleContentToDisplay = storyBodyElement ? storyBodyElement.innerHTML : '';
     }
+
+    if (websiteSelectors) {
+      //Select the place to display the main container
+      containerElement = document.querySelector(websiteSelectors.containerSelector);
+
+      // Extract the number of images in the whole article
+      const headerImages = document.querySelectorAll(websiteSelectors.containerSelector + ' img');
+      const articleImages = document.querySelectorAll(websiteSelectors.articleContentSelector + ' img');
+      imagesInArticle = headerImages.length + articleImages.length;
+    }
     
     // Log the extracted data
-    console.log('Headline:', headlineToDisplay );
+    /* console.log('Headline:', headlineToDisplay );
     console.log('Description:', descriptionToDisplay);
     console.log('Date Published:', datePublishedToDisplay );
     console.log('Date Modified:', dateModifiedToDisplay);
@@ -93,7 +104,8 @@ fetch(chrome.runtime.getURL('selectors.json'))
     console.log('articleBody:', articleContentToDisplay );
     console.log('author:', authorToDisplay);
     console.log('keywords:', keywordsToDisplay);
-    console.log('url:', urlToDisplay );
+    console.log('url:', urlToDisplay ); */
+    
 
     // Function to remove HTML tags from a string
     function removeHTMLTags(text) {
@@ -107,34 +119,15 @@ fetch(chrome.runtime.getURL('selectors.json'))
     // Split the cleaned text into words
     const words = cleanedText.trim().split(/\s+/);
 
-    // Count the number of words
+    // Count the number of words in the article and calculate the reading time
     const wordCount = words.length;
+    const readingTime = Math.ceil(wordCount / 238 + (imagesInArticle * 0.083));
 
-    console.log('words:', words);
-    console.log('Word Count:', wordCount );
-    const readingTime = Math.ceil(wordCount / 238);
-
-    // Create a new div container
-    const containerDiv = document.createElement('div');
-    containerDiv.classList.add('word-count-container'); // Add the CSS class to the container
-
-    // Create an h1 element for the header
-    const headerElement = document.createElement('h1');
-    headerElement.textContent = 'News Analysis';
-
-    // Create a new element for the word count
-    const readingTimeElement = document.createElement('div');
-    readingTimeElement.textContent = `Estimated reading time: ${readingTime}min`;
-
-    // Append the header and word count elements to the container
-    containerDiv.appendChild(headerElement);
-    containerDiv.appendChild(readingTimeElement);
-
-    // Find the .story__body div
-    const storyBodyDiv = document.querySelector('.story__header');
+    // Function to construct the HTML to display the word count
+    containerDiv = constructHTML(readingTime);
 
     // Append the word count element to the .headline div
-    storyBodyDiv.prepend(containerDiv);
+    containerElement.prepend(containerDiv);
 
   })
   .catch(error => {

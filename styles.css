@@ -1,5 +1,5 @@
 /* styles.css */
-.word-count-container {
+.news-analysis-container {
     background-color: rgb(255, 237, 237);
     color: rgb(0, 0, 0);
     padding: 5px;
@@ -10,4 +10,30 @@
     left: -10px;
     position: relative;
     width: 100%;
+  }
+
+  .container-header {
+    display: flex;
+    justify-content: center;
+  }
+
+  .reading-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(255 255 255);
+    color: rgb(0, 0, 0);
+    box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px;
+    text-align: center;
+    width: 25%;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 5px;
+    border-width: 1px;
+    border-style: solid;
+    letter-spacing: 0.5px;
+  }
+
+  .reading-time-title {
+    font-weight: bold;
   }
