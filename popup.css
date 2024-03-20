@@ -1,0 +1,70 @@
+/* Style for the center container */
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 300px;
+}
+
+.buttons-container {
+    display: flex;
+    margin-top: 20px;
+}
+
+/* Style for the save button */
+#saveButton {
+    padding: 10px;
+    margin-right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: ease 0.3s;
+}
+
+#saveButton:hover {
+    background-color: #2e6730;
+}
+
+/* Style for the clear button */
+#clearButton {
+    padding: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: ease 0.3s;
+}
+
+#clearButton:hover {
+    background-color: #830b03;
+}
+/* Style for the saved pages container */
+#savedPages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Style for each saved page */
+.saved-page {
+    width: 200px;
+    margin-bottom: 10px;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid black;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    background-color: rgb(255, 237, 237);
+    cursor: pointer;
+    transition: ease 0.3s;
+}
+
+/* Style for the hover effect on saved pages */
+.saved-page:hover {
+    background-color: #ddd;
+}
