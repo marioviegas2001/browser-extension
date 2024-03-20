@@ -7,10 +7,10 @@ function savePage() {
       const title = tabs[0].title;
       // Save the URL and title to local storage or send them to your server
       // For example, you can use chrome.storage.local to save data locally
-      chrome.storage.local.get('savedPages', function(data) {
-          const savedPages = data.savedPages || [];
-          savedPages.push({ url: url, title: title });
-          chrome.storage.local.set({ 'savedPages': savedPages }, function() {
+      chrome.storage.local.get('savedPagesMap', function(data) {
+          const savedPagesMap = data.savedPagesMap || {};
+          savedPagesMap[url] = { url: url, title: title };
+          chrome.storage.local.set({ 'savedPagesMap': savedPagesMap }, function() {
               console.log('Page saved:', title);
               // Update the saved pages display
               displaySavedPages();
@@ -22,7 +22,7 @@ function savePage() {
 // Function to handle cleaning all saved data from local storage
 function clearSavedData() {
   // Clear all saved data from local storage
-  chrome.storage.local.remove('savedPages', function() {
+  chrome.storage.local.remove('savedPagesMap', function() {
       console.log('All saved data cleared');
       // Update the saved pages display
       displaySavedPages();
@@ -32,15 +32,15 @@ function clearSavedData() {
 // Function to handle displaying saved pages
 function displaySavedPages() {
   // Retrieve saved pages from local storage
-  chrome.storage.local.get('savedPages', function(data) {
-      const savedPages = data.savedPages || [];
-      console.log('Saved pages:', savedPages);
+  chrome.storage.local.get('savedPagesMap', function(data) {
+      const savedPagesMap = data.savedPagesMap || {};
+      console.log('Saved pages:', savedPagesMap);
       // Get the container to display saved pages
       const savedPagesContainer = document.getElementById('savedPages');
       // Clear the container
       savedPagesContainer.innerHTML = '';
-      // Loop through saved pages and create a component for each one
-      savedPages.forEach(function(page) {
+      // Loop through the saved pages map and create a component for each one
+      Object.values(savedPagesMap).forEach(function(page) {
           const pageComponent = document.createElement('div');
           pageComponent.classList.add('saved-page');
           pageComponent.textContent = page.title;
@@ -48,15 +48,13 @@ function displaySavedPages() {
           pageComponent.addEventListener('click', function() {
               chrome.tabs.create({ url: page.url });
           });
-
           // Determine the domain and assign a class based on it
           const domain = new URL(page.url).hostname;
           if (domain === 'www.publico.pt') {
               pageComponent.classList.add('publico-domain');
-          } else if (domain === 'expresso.pt') {
+          } else if (domain === 'www.expresso.pt') {
               pageComponent.classList.add('expresso-domain');
           }
-
           savedPagesContainer.appendChild(pageComponent);
       });
   });
