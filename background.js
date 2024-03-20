@@ -1,5 +1,5 @@
 // Define an array of allowed domains
-const allowedDomains = ["www.publico.pt"];
+const allowedDomains = ["www.publico.pt", "expresso.pt"];
 
 // Listen for changes in the active tab
 chrome.tabs.onActivated.addListener(function(activeInfo) {

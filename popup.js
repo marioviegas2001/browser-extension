@@ -48,6 +48,15 @@ function displaySavedPages() {
           pageComponent.addEventListener('click', function() {
               chrome.tabs.create({ url: page.url });
           });
+
+          // Determine the domain and assign a class based on it
+          const domain = new URL(page.url).hostname;
+          if (domain === 'www.publico.pt') {
+              pageComponent.classList.add('publico-domain');
+          } else if (domain === 'expresso.pt') {
+              pageComponent.classList.add('expresso-domain');
+          }
+
           savedPagesContainer.appendChild(pageComponent);
       });
   });

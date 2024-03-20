@@ -59,9 +59,17 @@
     border: 1px solid black;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     padding: 10px;
-    background-color: rgb(255, 237, 237);
+    background-color: rgb(81, 81, 81);
     cursor: pointer;
     transition: ease 0.3s;
+}
+
+.publico-domain {
+    background-color: rgb(255, 237, 237);
+}
+
+.expresso-domain {
+    background-color: rgb(152, 164, 255);
 }
 
 /* Style for the hover effect on saved pages */
