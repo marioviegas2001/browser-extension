@@ -1,106 +1,182 @@
-// Function to handle saving the current page
+/******************************************************************************************************
+ *
+ *  Function to save the current page to the local storage(user), Arquivo.pt and external DB(Postgres).
+ *
+ * - 1. Get the current tab
+ * - 2. Get the URL and title of the current tab
+ * - 3. Open a new tab with the savepagenow URL (Arquivo.pt)
+ * - 4. Prepare the data to be sent in the request
+ * - 5. Make a POST request to save the article
+ * - 6. Use chrome.storage.local to save data locally
+ * - 7. Update the saved pages display
+ *
+ *****************************************************************************************************/
 function savePage() {
-  // Get the current tab
-  chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      // Get the URL and title of the current tab
-      const url = tabs[0].url;
-      const title = tabs[0].title;
-      // Save the URL and title to local storage or send them to your server
-      // For example, you can use chrome.storage.local to save data locally
-      chrome.storage.local.get('savedPagesMap', function(data) {
-          const savedPagesMap = data.savedPagesMap || {};
-          savedPagesMap[url] = { url: url, title: title };
-          chrome.storage.local.set({ 'savedPagesMap': savedPagesMap }, function() {
-              console.log('Page saved:', title);
-              // Update the saved pages display
-              displaySavedPages();
-          });
+  // 1 - Get the current tab
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    // 2 - Get the URL and title of the current tab
+    const url = tabs[0].url;
+    const title = tabs[0].title;
+
+    //3 - Open a new tab with the savepagenow URL (Arquivo.pt)
+    const savePageURL = `https://arquivo.pt/services/savepagenow?url=${encodeURIComponent(
+      url
+    )}`;
+    chrome.tabs.create({ url: savePageURL });
+
+    // 4 - Prepare the data to be sent in the request
+    const data = {
+      url: url,
+      title: title,
+      author: "Unknown", // Default author value
+      published_date: "2024-03-25", // Default published date value
+    };
+
+    // 5 - Make a POST request to save the article
+    fetch("http://localhost:8080/articles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("Article saved successfully!");
+        } else {
+          console.error("Failed to save article:", response.statusText);
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving article:", error);
       });
+
+    // 6 - Use chrome.storage.local to save data locally
+    chrome.storage.local.get("savedPagesMap", function (data) {
+      const savedPagesMap = data.savedPagesMap || {};
+      savedPagesMap[url] = { url: url, title: title };
+      chrome.storage.local.set({ savedPagesMap: savedPagesMap }, function () {
+        console.log("Page saved:", title);
+        // 7 - Update the saved pages display
+        displaySavedPages();
+      });
+    });
   });
 }
 
-// Function to handle cleaning all saved data from local storage
+
+/******************************************************************
+*
+*  Function to handle cleaning all saved data from local storage
+*
+* - 1. Ask for confirmation before clearing all saved data
+* - 2. Clear all saved data from local storage
+* - 3. Update the saved pages display
+*
+******************************************************************/
 function clearSavedData() {
-  // Ask for confirmation before clearing all saved data
-  if (confirm('Are you sure you want to delete all saved news?')) {
-      // Clear all saved data from local storage
-      chrome.storage.local.remove('savedPagesMap', function() {
-          console.log('All saved data cleared');
-          // Update the saved pages display
-          displaySavedPages();
-      });
+  // 1 - Ask for confirmation before clearing all saved data
+  if (confirm("Are you sure you want to delete all saved news?")) {
+    // 2 - Clear all saved data from local storage
+    chrome.storage.local.remove("savedPagesMap", function () {
+      console.log("All saved data cleared");
+      // 3 - Update the saved pages display
+      displaySavedPages();
+    });
   }
 }
 
-// Function to handle displaying saved pages
+
+/****************************************************************************
+*
+*  Function to display saved pages
+*
+*  - 1. Retrieve saved pages from local storage
+*  - 2. Get the container to display saved pages
+*  - 3. Check if there are no saved pages
+*  - 4. Loop through the saved pages map and create a component for each one
+*  - 5. Add click event listener to delete the saved page
+*  - 6. Delete the saved page from the savedPagesMap
+*  - 7. Update the saved pages
+*  - 8. Append title span and delete button to the page component
+*  - 9. Open the saved page in a new tab when clicked on the title
+*  - 10. Determine the domain and assign a class based on it
+*  - 11. Append the page component to the saved pages container
+*
+****************************************************************************/
 function displaySavedPages() {
-  // Retrieve saved pages from local storage
-  chrome.storage.local.get('savedPagesMap', function(data) {
-      const savedPagesMap = data.savedPagesMap || {};
-      console.log('Saved Articles:', savedPagesMap);
-      // Get the container to display saved pages
-      const savedPagesContainer = document.getElementById('savedPages');
-      // Clear the container
-      savedPagesContainer.innerHTML = '';
+  // 1 - Retrieve saved pages from local storage
+  chrome.storage.local.get("savedPagesMap", function (data) {
+    const savedPagesMap = data.savedPagesMap || {};
+    console.log("Saved Articles:", savedPagesMap);
+    
+    // 2 - Get the container to display saved pages
+    const savedPagesContainer = document.getElementById("savedPages");
+    savedPagesContainer.innerHTML = "";
 
-      // Check if there are no saved pages
-      if (Object.keys(savedPagesMap).length === 0) {
-        savedPagesContainer.textContent = 'Nothing to show yet. Save some news!';
-        return;
-      }
-      // Loop through the saved pages map and create a component for each one
-      Object.values(savedPagesMap).forEach(function(page) {
-          const pageComponent = document.createElement('div');
-          pageComponent.classList.add('saved-page');
+    // 3 - Check if there are no saved pages
+    if (Object.keys(savedPagesMap).length === 0) {
+      savedPagesContainer.textContent = "Nothing to show yet. Save some news!";
+      return;
+    }
 
-          // Create a span for the page title
-          const titleSpan = document.createElement('span');
-          titleSpan.textContent = page.title;
+    // 4 - Loop through the saved pages map and create a component for each one
+    Object.values(savedPagesMap).forEach(function (page) {
 
-          // Create a button to delete the saved page
-          const deleteButton = document.createElement('button');
-          deleteButton.textContent = 'Delete';
-          deleteButton.classList.add('delete-button');
+      const pageComponent = document.createElement("div");
+      pageComponent.classList.add("saved-page");
 
-          // Add click event listener to delete the saved page
-          deleteButton.addEventListener('click', function() {
-              // Remove the page from the savedPagesMap
-              delete savedPagesMap[page.url];
-              // Update the savedPagesMap in local storage
-              chrome.storage.local.set({ 'savedPagesMap': savedPagesMap }, function() {
-                  // Update the displayed saved pages
-                  displaySavedPages();
-              });
-          });
+     
+      const titleSpan = document.createElement("span");
+      titleSpan.textContent = page.title;
 
-          // Append title span and delete button to the page component
-          pageComponent.appendChild(titleSpan);
-          pageComponent.appendChild(deleteButton);
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      deleteButton.classList.add("delete-button");
 
-          // Open the saved page in a new tab when clicked on the title
-          titleSpan.addEventListener('click', function() {
-              chrome.tabs.create({ url: page.url });
-          });
+      // 5 - Add click event listener to delete the saved page
+      deleteButton.addEventListener("click", function () {
 
-          // Determine the domain and assign a class based on it
-          const domain = new URL(page.url).hostname;
-          if (domain === 'www.publico.pt') {
-              pageComponent.classList.add('publico-domain');
-          } else if (domain === 'expresso.pt') {
-              pageComponent.classList.add('expresso-domain');
-          }
-
-          // Append the page component to the saved pages container
-          savedPagesContainer.appendChild(pageComponent);
+        // 6 - Delete the saved page from the savedPagesMap
+        delete savedPagesMap[page.url];
+        
+        // 7 - Update the saved pages
+        chrome.storage.local.set({ savedPagesMap: savedPagesMap }, function () {
+          displaySavedPages();
+        });
       });
+
+      // 8 - Append title span and delete button to the page component
+      pageComponent.appendChild(titleSpan);
+      pageComponent.appendChild(deleteButton);
+
+      // 9 - Open the saved page in a new tab when clicked on the title
+      titleSpan.addEventListener("click", function () {
+        chrome.tabs.create({ url: page.url });
+      });
+
+      // 10 - Determine the domain and assign a class based on it (different styles for different domains)
+      const domain = new URL(page.url).hostname;
+      if (domain === "www.publico.pt") {
+        pageComponent.classList.add("publico-domain");
+      } else if (domain === "expresso.pt") {
+        pageComponent.classList.add("expresso-domain");
+      }
+
+      // 11 - Append the page component to the saved pages container
+      savedPagesContainer.appendChild(pageComponent);
+    });
   });
 }
 
 
-// Add event listeners to the buttons
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('saveButton').addEventListener('click', savePage);
-  document.getElementById('clearButton').addEventListener('click', clearSavedData);
-  // Display saved pages when popup is opened
+/***************************************
+*
+*  Add event listeners to the buttons
+*
+***************************************/
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("saveButton").addEventListener("click", savePage);
+  document.getElementById("clearButton").addEventListener("click", clearSavedData);
   displaySavedPages();
 });
