@@ -94,6 +94,34 @@ fetch(chrome.runtime.getURL('selectors.json'))
       imagesInArticle = headerImages.length + articleImages.length;
     }
     
+    const data = {
+      url: urlToDisplay,
+      title: headlineToDisplay,
+      author: "authorToDisplay",
+      published_date: datePublishedToDisplay,
+      created_date: dateCreatedToDisplay,
+      modified_date: dateModifiedToDisplay,
+      keywords: keywordsToDisplay
+    };
+
+    fetch("http://localhost:8080/articles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("Article saved successfully!");
+        } else {
+          console.error("Failed to save article:", response.statusText);
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving article:", error);
+      });
+
     // Log the extracted data
     /* console.log('Headline:', headlineToDisplay );
     console.log('Description:', descriptionToDisplay);

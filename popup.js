@@ -5,10 +5,9 @@
  * - 1. Get the current tab
  * - 2. Get the URL and title of the current tab
  * - 3. Open a new tab with the savepagenow URL (Arquivo.pt)
- * - 4. Prepare the data to be sent in the request
- * - 5. Make a POST request to save the article
- * - 6. Use chrome.storage.local to save data locally
- * - 7. Update the saved pages display
+ * - 4. Make a POST request to save the article
+ * - 5. Use chrome.storage.local to save data locally
+ * - 6. Update the saved pages display
  *
  *****************************************************************************************************/
 function savePage() {
@@ -24,40 +23,33 @@ function savePage() {
     )}`;
     chrome.tabs.create({ url: savePageURL });
 
-    // 4 - Prepare the data to be sent in the request
-    const data = {
-      url: url,
-      title: title,
-      author: "Unknown", // Default author value
-      published_date: "2024-03-25", // Default published date value
-    };
-
-    // 5 - Make a POST request to save the article
-    fetch("http://localhost:8080/articles", {
-      method: "POST",
+    // 4 - Make a PUT request to increment the saved count on the article
+    fetch(`http://localhost:8080/articles/${encodeURIComponent(
+      url
+    )}/increment`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      }
     })
       .then((response) => {
         if (response.ok) {
-          console.log("Article saved successfully!");
+          console.log("Article saved count incremented!");
         } else {
-          console.error("Failed to save article:", response.statusText);
+          console.error("Failed to increment saved count:", response.statusText);
         }
       })
       .catch((error) => {
-        console.error("Error saving article:", error);
+        console.error("Error incrementing saved count:", error);
       });
 
-    // 6 - Use chrome.storage.local to save data locally
+    // 5 - Use chrome.storage.local to save data locally
     chrome.storage.local.get("savedPagesMap", function (data) {
       const savedPagesMap = data.savedPagesMap || {};
       savedPagesMap[url] = { url: url, title: title };
       chrome.storage.local.set({ savedPagesMap: savedPagesMap }, function () {
         console.log("Page saved:", title);
-        // 7 - Update the saved pages display
+        // 6 - Update the saved pages display
         displaySavedPages();
       });
     });
