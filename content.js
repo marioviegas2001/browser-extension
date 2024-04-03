@@ -93,11 +93,13 @@ fetch(chrome.runtime.getURL('selectors.json'))
       const articleImages = document.querySelectorAll(websiteSelectors.articleContentSelector + ' img');
       imagesInArticle = headerImages.length + articleImages.length;
     }
-    
+
+    const authors = authorToDisplay.map(person => person.name);
+
     const data = {
       url: urlToDisplay,
       title: headlineToDisplay,
-      author: "authorToDisplay",
+      author: authors,
       published_date: datePublishedToDisplay,
       created_date: dateCreatedToDisplay,
       modified_date: dateModifiedToDisplay,
@@ -123,7 +125,7 @@ fetch(chrome.runtime.getURL('selectors.json'))
       });
 
     // Log the extracted data
-    /* console.log('Headline:', headlineToDisplay );
+    console.log('Headline:', headlineToDisplay );
     console.log('Description:', descriptionToDisplay);
     console.log('Date Published:', datePublishedToDisplay );
     console.log('Date Modified:', dateModifiedToDisplay);
@@ -132,17 +134,22 @@ fetch(chrome.runtime.getURL('selectors.json'))
     console.log('articleBody:', articleContentToDisplay );
     console.log('author:', authorToDisplay);
     console.log('keywords:', keywordsToDisplay);
-    console.log('url:', urlToDisplay ); */
+    console.log('url:', urlToDisplay );
     
 
     // Function to remove HTML tags from a string
     function removeHTMLTags(text) {
+      if(currentWebsite == "www.publico.pt") {
+        text = text.replace(/<section class="stack stack--learn-more stack-social-tools">.*?<\/section>/gis, '')
+      }
       return text.replace(/<[^>]*>/g, ''); // Replace HTML tags with an empty string
     }
 
     // Remove HTML tags and links from articleContentToDisplay
     const cleanedText = removeHTMLTags(articleContentToDisplay)
       .replace(/\bhttps?:\/\/\S+/gi, ''); // Remove links starting with http or https
+
+    console.log('Cleaned text:', cleanedText);
 
     // Split the cleaned text into words
     const words = cleanedText.trim().split(/\s+/);
