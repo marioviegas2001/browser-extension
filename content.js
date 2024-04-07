@@ -9,6 +9,7 @@ let articleSectionToDisplay = '';
 let authorToDisplay = [];
 let keywordsToDisplay = [];
 let urlToDisplay = '';
+let publisherToDisplay = '';
 let imagesInArticle = 0;
 
 // Find all script tags on the page
@@ -37,7 +38,8 @@ for (let i = 0; i < scriptTags.length; i++) {
         articleBody,
         author, 
         keywords, 
-        url} = jsonData;
+        url,
+        publisher} = jsonData;
 
       // Assign values from JSON if available
       headlineToDisplay = headline || headlineToDisplay;
@@ -50,6 +52,8 @@ for (let i = 0; i < scriptTags.length; i++) {
       authorToDisplay = author || authorToDisplay;
       keywordsToDisplay = keywords || keywordsToDisplay;
       urlToDisplay = url || urlToDisplay;
+      publisherToDisplay = publisher["name"] || publisherToDisplay;
+      console.log("publisherToDisplay", publisherToDisplay);
       
       break;
     }
@@ -103,7 +107,8 @@ fetch(chrome.runtime.getURL('selectors.json'))
       published_date: datePublishedToDisplay,
       created_date: dateCreatedToDisplay,
       modified_date: dateModifiedToDisplay,
-      keywords: keywordsToDisplay
+      keywords: keywordsToDisplay,
+      source: publisherToDisplay
     };
 
     fetch("http://localhost:8080/articles", {
