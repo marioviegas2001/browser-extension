@@ -5,7 +5,7 @@
   "version": "1.0",
   "action": {
     "default_popup": "index.html",
-    "default_icon": "assets/Logo.png"
+    "default_icon": "assets/arquivoLogo.png"
   },
   "permissions": [
     "tabs",

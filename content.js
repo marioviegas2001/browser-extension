@@ -144,25 +144,83 @@ fetch(chrome.runtime.getURL('selectors.json'))
 
     // Function to remove HTML tags from a string
     function removeHTMLTags(text) {
-      if(currentWebsite == "www.publico.pt") {
-        text = text.replace(/<section class="stack stack--learn-more stack-social-tools">.*?<\/section>/gis, '')
+      if (currentWebsite == "www.publico.pt") {
+        text = text.replace(/<section class="stack stack--learn-more stack-social-tools">.*?<\/section>/gis, '');
       }
-      return text.replace(/<[^>]*>/g, ''); // Replace HTML tags with an empty string
+      return text.replace(/<[^>]*>/g, ' '); // Replace HTML tags with an empty string
+    }
+    
+    // Function to count sentences
+    function countSentences(text) {
+      // Using regex to count sentence-ending punctuation marks
+      const sentences = text.match(/[^.!?]*[.!?]/g);
+      return sentences ? sentences.length : 0;
+    }
+    
+    // Function to count syllables in a Portuguese word
+    // MAKE SURE TO CHECK THE SYLLABLE COUNTING RULES DEEPER
+    function countSyllables(word) {
+      // Check if the word contains digits or punctuation typical in numbers
+      if (/\d/.test(word)) {
+        return 0;
+      }
+    
+      // Match all vowel clusters (including diphthongs and trithongs)
+      const vowels = word.match(/[aeiouáéíóúâêîôûãõàèìòù]+/gi);
+    
+      // If no vowels are found, return 1 syllable (I'ts an entity name or acronym)
+      if (!vowels) return 1;
+    
+      // Handle specific cases where certain digraphs should count as single syllables
+      const digraphs = /lh|nh|ch|gu|qu/gi;
+      const separated = word.split(digraphs);
+    
+      // Count the number of vowel clusters, adjusted for digraphs
+      let syllableCount = separated.reduce((acc, part) => {
+        const vowelClusters = part.match(/[aeiouáéíóúâêîôûãõàèìòù]+/gi);
+        return acc + (vowelClusters ? vowelClusters.length : 0);
+      }, 0);
+    
+      // Handle specific cases of hiatus for 'a', 'i' and 'u'
+      const hiatoA = word.match(/a[íìî]/gi) || [];
+      const hiatoI = word.match(/(?<![gq])i[aeiouáéíóúâêîôûãõàèìòù]/gi) || [];
+      const hiatoU = word.match(/(?<![gq])u[aeiouáéíóúâêîôûãõàèìòù]/gi) || [];
+    
+      const hiatoCount = hiatoI.length + hiatoU.length+ hiatoA.length;
+      syllableCount += hiatoCount;
+    
+      return syllableCount;
     }
 
+
     // Remove HTML tags and links from articleContentToDisplay
-    const cleanedText = removeHTMLTags(articleContentToDisplay)
-      .replace(/\bhttps?:\/\/\S+/gi, ''); // Remove links starting with http or https
-
+    const cleanedText = removeHTMLTags(articleContentToDisplay).replace(/\bhttps?:\/\/\S+/gi, '');
+    
     console.log('Cleaned text:', cleanedText);
-
+    
     // Split the cleaned text into words
     const words = cleanedText.trim().split(/\s+/);
-
-    // Count the number of words in the article and calculate the reading time
+    console.log('Words:', words);
+    
+    // Count the number of words in the article
     const wordCount = words.length;
+    
+    // Count the number of sentences in the article
+    const sentenceCount = countSentences(cleanedText);
+    
+    // Count the total number of syllables in the article
+    const syllableCount = words.reduce((total, word) => total + countSyllables(word), 0);
+    // Calculate the reading time
     const readingTime = Math.ceil(wordCount / 238 + (imagesInArticle * 0.083));
 
+    //Calculate Flash-Kinkaid Grade Level - PT version
+    const fk = 0.883 * (wordCount / sentenceCount) + 17.347 * (syllableCount / wordCount) - 41.239;
+    
+    console.log('Word count:', wordCount);
+    console.log('Sentence count:', sentenceCount);
+    console.log('Syllable count:', syllableCount);
+    console.log('Flash-Kinkaid Grade Level:', fk);
+    
     // Function to construct the HTML to display the word count
     containerDiv = constructHTML(readingTime);
 
