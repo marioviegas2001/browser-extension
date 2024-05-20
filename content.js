@@ -214,15 +214,15 @@ fetch(chrome.runtime.getURL('selectors.json'))
     const readingTime = Math.ceil(wordCount / 238 + (imagesInArticle * 0.083));
 
     //Calculate Flash-Kinkaid Grade Level - PT version
-    const fk = 0.883 * (wordCount / sentenceCount) + 17.347 * (syllableCount / wordCount) - 41.239;
-    
+    let fk = 0.883 * (wordCount / sentenceCount) + 17.347 * (syllableCount / wordCount) - 41.239;
+    fk = Math.round(fk);
     console.log('Word count:', wordCount);
     console.log('Sentence count:', sentenceCount);
     console.log('Syllable count:', syllableCount);
     console.log('Flash-Kinkaid Grade Level:', fk);
     
     // Function to construct the HTML to display the word count
-    containerDiv = constructHTML(readingTime);
+    containerDiv = constructHTML(readingTime, fk);
 
     // Append the word count element to the .headline div
     containerElement.prepend(containerDiv);
