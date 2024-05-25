@@ -146,8 +146,75 @@ function calculateReadabilityMetrics(cleanedText) {
   return { wordCount, sentenceCount, syllableCount, readingTime, fk };
 }
 
+// Function to extract entities using Dandelion API
+async function extractEntities(text) {
+  const apiKey = '0472965430784b599bdae78299fbeb28';
+  const minConfidence = 0.75;
+  const apiUrl = `https://api.dandelion.eu/datatxt/nex/v1/?html_fragment=${encodeURIComponent(text)}&lang=pt&token=${apiKey}&min_confidence=${minConfidence}&include=abstract,image`;
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error extracting entities:', error);
+  }
+}
+
+// Function to highlight entities and create links to Wikipedia pages
+function highlightEntitiesInHTML(entities, htmlElement) {
+  // Iterate through the entities
+  entities.forEach(entity => {
+    // Get the entity name and Wikipedia URI
+    const entityName = entity.spot;
+    const wikipediaURI = entity.uri;
+
+    // Create a regular expression to match the entity name in the HTML content
+    //const regex = new RegExp(`(?:^|\\s)(${entityName})(?=[\\s,.!?"]|$)`, 'gi');
+    const regex = new RegExp(`(?:^|\\s)(${entityName})`, 'gi');
+
+
+    // Find all occurrences of the entity name in the HTML content
+    const matches = htmlElement.textContent.match(regex);
+
+    // If matches are found, replace each occurrence with a link to the Wikipedia page
+    if (matches) {
+      htmlElement.innerHTML = htmlElement.innerHTML.replace(regex, ` <a href="${wikipediaURI}" class="entity-link" target="_blank">${entityName}</a>`);
+    }
+  });
+}
+
+// Function to add tooltips to highlighted elements
+function addTooltips(entities) {
+  entities.forEach(entity => {
+    const entityValue = entity.spot;
+    const entityAbstract = entity.abstract || 'No abstract available';
+    const entityImage = entity.image.thumbnail || '';
+
+    // Select all highlighted elements that match the entity value
+    const highlightedElements = document.querySelectorAll(`.entity-link`);
+
+    highlightedElements.forEach(element => {
+      if (element.textContent.trim() === entityValue) {
+        const tooltip = document.createElement('span');
+        tooltip.className = 'tooltip';
+        // Add image to tooltip if available
+        const tooltipContent = `
+          ${entityImage ? `<img src="${entityImage}" alt="${entityValue}" class="tooltip-image">` : ''}
+          <p>${entityAbstract}</p>
+        `;
+        tooltip.innerHTML = tooltipContent;
+        element.appendChild(tooltip);
+      }
+    });
+  });
+}
 // Main script execution starts here
-(function main() {
+(async function main() {
   const scriptTags = document.querySelectorAll('script');
 
   for (let scriptTag of scriptTags) {
@@ -170,7 +237,7 @@ function calculateReadabilityMetrics(cleanedText) {
 
   fetch(chrome.runtime.getURL('selectors.json'))
     .then(response => response.json())
-    .then(selectors => {
+    .then(async selectors => {
       const { containerElement } = fetchAndExtractSelectors(selectors);
 
       const authors = authorToDisplay.map(person => person.name);
@@ -203,6 +270,17 @@ function calculateReadabilityMetrics(cleanedText) {
 
       const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText);
 
+      const entities = await extractEntities(cleanedText);
+      console.log('Extracted Entities:', entities);
+
+       // Get the HTML element containing the article content
+      const articleToChange = document.querySelector(selectors[window.location.hostname].articleContentSelector);
+
+      // Highlight entities in the HTML content
+      highlightEntitiesInHTML(entities.annotations, articleToChange);
+      // Add tooltips to the highlighted elements
+      addTooltips(entities.annotations);
+
       console.log('Word count:', wordCount);
       console.log('Sentence count:', sentenceCount);
       console.log('Syllable count:', syllableCount);
@@ -215,3 +293,5 @@ function calculateReadabilityMetrics(cleanedText) {
       console.error('Error fetching selectors:', error);
     });
 })();
+
+//TODO NEXT - WHEN THE TEXT IS TOO LONG, THE API RETURNS A ERROR, SO WE NEED TO SPLIT THE TEXT INTO SMALLER CHUNKS
