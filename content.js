@@ -150,20 +150,35 @@ function calculateReadabilityMetrics(cleanedText) {
 async function extractEntities(text) {
   const apiKey = '0472965430784b599bdae78299fbeb28';
   const minConfidence = 0.75;
-  const apiUrl = `https://api.dandelion.eu/datatxt/nex/v1/?html_fragment=${encodeURIComponent(text)}&lang=pt&token=${apiKey}&min_confidence=${minConfidence}&include=abstract,image`;
+  const chunkSize = 1000; // Define the chunk size based on the API's limitations
+  const chunks = [];
 
-  try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error extracting entities:', error);
+  // Split text into chunks
+  for (let i = 0; i < text.length; i += chunkSize) {
+    chunks.push(text.slice(i, i + chunkSize));
   }
+
+  const entityResults = [];
+
+  for (const chunk of chunks) {
+    const apiUrl = `https://api.dandelion.eu/datatxt/nex/v1/?html_fragment=${encodeURIComponent(chunk)}&lang=pt&token=${apiKey}&min_confidence=${minConfidence}&include=abstract,image`;
+
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      entityResults.push(...data.annotations);
+    } catch (error) {
+      console.error('Error extracting entities:', error);
+    }
+  }
+
+  return entityResults;
 }
+
 
 // Function to highlight entities and create links to Wikipedia pages
 function highlightEntitiesInHTML(entities, htmlElement) {
@@ -235,63 +250,67 @@ function addTooltips(entities) {
     }
   }
 
-  fetch(chrome.runtime.getURL('selectors.json'))
-    .then(response => response.json())
-    .then(async selectors => {
-      const { containerElement } = fetchAndExtractSelectors(selectors);
+  try {
+    const selectorsResponse = await fetch(chrome.runtime.getURL('selectors.json'));
+    const selectors = await selectorsResponse.json();
 
-      const authors = authorToDisplay.map(person => person.name);
-      const data = {
-        url: urlToDisplay,
-        title: headlineToDisplay,
-        author: authors,
-        published_date: datePublishedToDisplay,
-        created_date: dateCreatedToDisplay,
-        modified_date: dateModifiedToDisplay,
-        keywords: keywordsToDisplay,
-        source: publisherToDisplay
-      };
+    const { containerElement } = fetchAndExtractSelectors(selectors);
 
-      postExtractedData(data);
+    const authors = authorToDisplay.map(person => person.name);
+    const data = {
+      url: urlToDisplay,
+      title: headlineToDisplay,
+      author: authors,
+      published_date: datePublishedToDisplay,
+      created_date: dateCreatedToDisplay,
+      modified_date: dateModifiedToDisplay,
+      keywords: keywordsToDisplay,
+      source: publisherToDisplay
+    };
 
-      console.log('Headline:', headlineToDisplay);
-      console.log('Description:', descriptionToDisplay);
-      console.log('Date Published:', datePublishedToDisplay);
-      console.log('Date Modified:', dateModifiedToDisplay);
-      console.log('Date Created:', dateCreatedToDisplay);
-      console.log('Article Section:', articleSectionToDisplay);
-      console.log('Article Body:', articleContentToDisplay);
-      console.log('Author:', authorToDisplay);
-      console.log('Keywords:', keywordsToDisplay);
-      console.log('URL:', urlToDisplay);
+    postExtractedData(data);
 
-      const cleanedText = removeHTMLTags(articleContentToDisplay).replace(/\bhttps?:\/\/\S+/gi, '');
-      console.log('Cleaned text:', cleanedText);
+    console.log('Headline:', headlineToDisplay);
+    console.log('Description:', descriptionToDisplay);
+    console.log('Date Published:', datePublishedToDisplay);
+    console.log('Date Modified:', dateModifiedToDisplay);
+    console.log('Date Created:', dateCreatedToDisplay);
+    console.log('Article Section:', articleSectionToDisplay);
+    console.log('Article Body:', articleContentToDisplay);
+    console.log('Author:', authorToDisplay);
+    console.log('Keywords:', keywordsToDisplay);
+    console.log('URL:', urlToDisplay);
 
-      const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText);
+    const cleanedText = removeHTMLTags(articleContentToDisplay).replace(/\bhttps?:\/\/\S+/gi, '');
+    console.log('Cleaned text:', cleanedText);
 
+    const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText);
+
+    // Display readability metrics
+    console.log('Word count:', wordCount);
+    console.log('Sentence count:', sentenceCount);
+    console.log('Syllable count:', syllableCount);
+    console.log('Reading time:', readingTime);
+    console.log('Flash-Kinkaid Grade Level:', fk);
+    
+    containerElement.prepend(constructHTML(readingTime, fk));
+
+    // Proceed with entity extraction
+    try {
       const entities = await extractEntities(cleanedText);
       console.log('Extracted Entities:', entities);
 
-       // Get the HTML element containing the article content
+      // Get the HTML element containing the article content
       const articleToChange = document.querySelector(selectors[window.location.hostname].articleContentSelector);
 
       // Highlight entities in the HTML content
-      highlightEntitiesInHTML(entities.annotations, articleToChange);
+      highlightEntitiesInHTML(entities, articleToChange);
       // Add tooltips to the highlighted elements
-      addTooltips(entities.annotations);
-
-      console.log('Word count:', wordCount);
-      console.log('Sentence count:', sentenceCount);
-      console.log('Syllable count:', syllableCount);
-      console.log('Reading time:', readingTime);
-      console.log('Flash-Kinkaid Grade Level:', fk);
-
-      containerElement.prepend(constructHTML(readingTime, fk));
-    })
-    .catch(error => {
-      console.error('Error fetching selectors:', error);
-    });
+      addTooltips(entities);
+    } catch (error) {
+      console.error('Error extracting entities:', error);
+    }
+  } catch (error) {
+    console.error('Error fetching selectors or processing data:', error);
+  }
 })();
-
-//TODO NEXT - WHEN THE TEXT IS TOO LONG, THE API RETURNS A ERROR, SO WE NEED TO SPLIT THE TEXT INTO SMALLER CHUNKS
