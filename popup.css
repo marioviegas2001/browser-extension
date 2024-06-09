@@ -1,4 +1,8 @@
 /* Style for the center container */
+.body {
+    background: white;
+}
+
 .center {
     display: flex;
     flex-direction: column;

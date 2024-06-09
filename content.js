@@ -132,6 +132,34 @@ function postExtractedData(data) {
   });
 }
 
+async function summarizeArticle(articleText) {
+  const url = 'http://localhost:8080/summarize';
+  const headers = {
+      'Content-Type': 'application/json'
+  };
+  const data = {
+      article_text: articleText
+  };
+
+  try {
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Summary:', result.summary);
+      return result.summary;
+  } catch (error) {
+      console.error('Error summarizing article:', error);
+  }
+}
+
 // Function to calculate readability metrics
 function calculateReadabilityMetrics(cleanedText) {
   const words = cleanedText.trim().split(/\s+/);
@@ -269,6 +297,7 @@ function addTooltips(entities) {
     };
 
     postExtractedData(data);
+    
 
     console.log('Headline:', headlineToDisplay);
     console.log('Description:', descriptionToDisplay);
@@ -284,6 +313,8 @@ function addTooltips(entities) {
     const cleanedText = removeHTMLTags(articleContentToDisplay).replace(/\bhttps?:\/\/\S+/gi, '');
     console.log('Cleaned text:', cleanedText);
 
+    const summary = await summarizeArticle(cleanedText);
+
     const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText);
 
     // Display readability metrics
@@ -293,7 +324,7 @@ function addTooltips(entities) {
     console.log('Reading time:', readingTime);
     console.log('Flash-Kinkaid Grade Level:', fk);
     
-    containerElement.prepend(constructHTML(readingTime, fk));
+    containerElement.prepend(constructHTML(readingTime, fk, summary));
 
     // Proceed with entity extraction
     try {

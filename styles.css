@@ -19,9 +19,15 @@
 
   .container-content {
     display: flex;
+    justify-content: space-evenly;
   }
 
-  .reading-time, .reading-grade-level{
+  .container-summary {
+    display: flex;
+    justify-content: center;
+  }
+
+  .reading-time, .reading-grade-level, .summary-container{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -36,6 +42,10 @@
     border-width: 1px;
     border-style: solid;
     letter-spacing: 0.5px;
+  }
+
+  .summary-container{
+    width: 100%;
   }
 
   .reading-time-title, .reading-grade-level-title {

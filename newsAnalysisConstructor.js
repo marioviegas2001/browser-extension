@@ -9,10 +9,14 @@ function createMainContainer() {
   const contentDiv = document.createElement('div');
   contentDiv.classList.add('container-content');
 
+  const contentDiv2 = document.createElement('div');
+  contentDiv2.classList.add('container-summary');
+
   containerDiv.appendChild(headerElement);
   containerDiv.appendChild(contentDiv);
+  containerDiv.appendChild(contentDiv2);
 
-  return { containerDiv, contentDiv };
+  return { containerDiv, contentDiv, contentDiv2 };
 }
 
 function createReadingTimeContainer(readingTime) {
@@ -51,13 +55,33 @@ function createReadingGradeLevelContainer(readingGradeLevel) {
   return readingGradeLevelElement;
 }
 
-function constructHTML(readingTime, readingGradeLevel) {
-  const { containerDiv, contentDiv } = createMainContainer();
+function createSummaryContainer(summary) {
+  const summaryContainer = document.createElement('div');
+  summaryContainer.classList.add('summary-container');
+
+  const summaryHeader = document.createElement('h2');
+  summaryHeader.textContent = 'Summary';
+  summaryHeader.classList.add('summary-header');
+
+  const summaryContent = document.createElement('div');
+  summaryContent.textContent = summary;
+  summaryContent.classList.add('summary-content');
+
+  summaryContainer.appendChild(summaryHeader);
+  summaryContainer.appendChild(summaryContent);
+
+  return summaryContainer;
+}
+
+function constructHTML(readingTime, readingGradeLevel, summary) {
+  const { containerDiv, contentDiv, contentDiv2 } = createMainContainer();
   const readingTimeElement = createReadingTimeContainer(readingTime);
   const readingGradeLevelElement = createReadingGradeLevelContainer(readingGradeLevel);
+  const summaryContainer = createSummaryContainer(summary);
 
   contentDiv.appendChild(readingTimeElement);
   contentDiv.appendChild(readingGradeLevelElement);
+  contentDiv2.appendChild(summaryContainer);
 
   return containerDiv;
 }
