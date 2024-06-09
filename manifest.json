@@ -24,7 +24,14 @@
     {
       "matches": ["https://www.publico.pt/*"],
       "css": ["styles.css"],
-      "js": ["newsAnalysisConstructor.js" ,"content.js"]
+      "js": ["newsAnalysisConstructor.js" ,
+        "config.js",
+        "utils.js",
+        "extraction.js",
+        "api.js",
+        "highlight.js",
+        "main.js"
+      ]
       
     }
   ]
