@@ -56,8 +56,6 @@ let displayVariables = {
       source: displayVariables.publisherToDisplay
     };
 
-    postExtractedData(data);
-
     console.log('Headline:', displayVariables.headlineToDisplay);
     console.log('Description:', displayVariables.descriptionToDisplay);
     console.log('Date Published:', displayVariables.datePublishedToDisplay);
@@ -73,7 +71,6 @@ let displayVariables = {
     console.log('Cleaned text:', cleanedText);
 
     const summary = await summarizeArticle(cleanedText);
-
     const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
 
     containerElement.prepend(constructHTML(readingTime, fk, summary));
@@ -81,6 +78,15 @@ let displayVariables = {
     try {
       const entities = await extractEntities(cleanedText);
       console.log('Extracted Entities:', entities);
+
+      // Sort entities by confidence and select the top 5
+      const topEntities = entities.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
+
+      // Add top 5 entities to data (only the name)
+      data.entities = topEntities.map(entity => entity.spot);
+
+      postExtractedData(data);
+
       const articleToChange = document.querySelector(selectors[window.location.hostname].articleContentSelector);
       highlightEntitiesInHTML(entities, articleToChange);
       addTooltips(entities);

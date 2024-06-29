@@ -49,7 +49,7 @@ function postExtractedData(data) {
   }
   
   async function extractEntities(text) {
-    const apiKey = CONFIG.DANDELION_API_KEY;;
+    const apiKey = CONFIG.DANDELION_API_KEY;
     const minConfidence = 0.75;
     const chunkSize = 1000; // Define the chunk size based on the API's limitations
     const chunks = [];
