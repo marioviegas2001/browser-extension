@@ -3,7 +3,7 @@
 function extractNewsArticleData(jsonData, displayVariables) {
     const {
       headline, description, dateCreated, dateModified, datePublished, articleSection,
-      articleBody, author, keywords, url, publisher
+      articleBody, author, keywords, url, publisher, image
     } = jsonData;
   
     displayVariables.headlineToDisplay = headline || displayVariables.headlineToDisplay;
@@ -17,6 +17,7 @@ function extractNewsArticleData(jsonData, displayVariables) {
     displayVariables.keywordsToDisplay = keywords || displayVariables.keywordsToDisplay;
     displayVariables.urlToDisplay = url || displayVariables.urlToDisplay;
     displayVariables.publisherToDisplay = publisher?.name || displayVariables.publisherToDisplay;
+    displayVariables.mainImageUrl = image?.url || displayVariables.mainImageUrl;
   }
   
   function fetchAndExtractSelectors(selectors, displayVariables) {
@@ -36,6 +37,10 @@ function extractNewsArticleData(jsonData, displayVariables) {
     if (!displayVariables.articleContentToDisplay && websiteSelectors) {
       const storyBodyElement = document.querySelector(websiteSelectors.articleContentSelector);
       displayVariables.articleContentToDisplay = storyBodyElement ? storyBodyElement.innerHTML : '';
+    }
+
+    if (!displayVariables.mainImageUrl && websiteSelectors) {
+      displayVariables.mainImageUrl = document.querySelector(websiteSelectors.mainImage)?.textContent.trim() || '';
     }
   
     if (websiteSelectors) {

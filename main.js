@@ -13,7 +13,8 @@ let displayVariables = {
   keywordsToDisplay: [],
   urlToDisplay: '',
   publisherToDisplay: '',
-  imagesInArticle: 0
+  imagesInArticle: 0,
+  mainImageUrl: ''
 };
 
 // Main script execution starts here
@@ -53,7 +54,8 @@ let displayVariables = {
       created_date: displayVariables.dateCreatedToDisplay,
       modified_date: displayVariables.dateModifiedToDisplay,
       keywords: displayVariables.keywordsToDisplay,
-      source: displayVariables.publisherToDisplay
+      source: displayVariables.publisherToDisplay,
+      imageUrl: displayVariables.mainImageUrl
     };
 
     console.log('Headline:', displayVariables.headlineToDisplay);
@@ -66,6 +68,7 @@ let displayVariables = {
     console.log('Author:', displayVariables.authorToDisplay);
     console.log('Keywords:', displayVariables.keywordsToDisplay);
     console.log('URL:', displayVariables.urlToDisplay);
+    console.log('main Image url:', displayVariables.mainImageUrl)
 
     const cleanedText = removeHTMLTags(displayVariables.articleContentToDisplay).replace(/\bhttps?:\/\/\S+/gi, '');
     console.log('Cleaned text:', cleanedText);
