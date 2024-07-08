@@ -5,5 +5,12 @@
       "descriptionSelector": ".story__blurb p",
       "articleContentSelector": ".story__body",
       "mainImage": "story__media img"
+    },
+    "expresso.pt": {
+      "containerSelector": ".main-container",
+      "titleSelector": ".title",
+      "descriptionSelector": ".g-article-lead lead",
+      "articleContentSelector": ".full-article-fragment span",
+      "mainImage": ".landscape source"
     }
 }

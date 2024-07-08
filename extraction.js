@@ -3,7 +3,7 @@
 function extractNewsArticleData(jsonData, displayVariables) {
     const {
       headline, description, dateCreated, dateModified, datePublished, articleSection,
-      articleBody, author, keywords, url, publisher, image
+      articleBody, author, keywords, url, publisher, image, mainEntityOfPage
     } = jsonData;
   
     displayVariables.headlineToDisplay = headline || displayVariables.headlineToDisplay;
@@ -15,9 +15,9 @@ function extractNewsArticleData(jsonData, displayVariables) {
     displayVariables.articleContentToDisplay = articleBody || displayVariables.articleContentToDisplay;
     displayVariables.authorToDisplay = author || displayVariables.authorToDisplay;
     displayVariables.keywordsToDisplay = keywords || displayVariables.keywordsToDisplay;
-    displayVariables.urlToDisplay = url || displayVariables.urlToDisplay;
+    displayVariables.urlToDisplay = url || mainEntityOfPage ||displayVariables.urlToDisplay;
     displayVariables.publisherToDisplay = publisher?.name || displayVariables.publisherToDisplay;
-    displayVariables.mainImageUrl = image?.url || displayVariables.mainImageUrl;
+    displayVariables.mainImageUrl = image?.url || image[2] ||displayVariables.mainImageUrl;
   }
   
   function fetchAndExtractSelectors(selectors, displayVariables) {

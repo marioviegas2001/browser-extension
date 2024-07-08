@@ -22,7 +22,7 @@
   }],
   "content_scripts": [
     {
-      "matches": ["https://www.publico.pt/*"],
+      "matches": ["https://www.publico.pt/*", "https://expresso.pt/*"],
       "css": ["styles.css"],
       "js": ["newsAnalysisConstructor.js" ,
         "config.js",

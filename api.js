@@ -20,6 +20,34 @@ function postExtractedData(data) {
     });
   }
   
+  async function cleanArticleContent(htmlContent) {
+    const url = 'http://localhost:8080/clean';
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const data = {
+        html_content: htmlContent
+    };
+  
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+  
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log('Cleaned text:', result.cleaned_text);
+        return result.cleaned_text;
+    } catch (error) {
+        console.error('Error cleaning article content:', error);
+    }
+  }
+
   async function summarizeArticle(articleText) {
     const url = 'http://localhost:8080/summarize';
     const headers = {

@@ -1,6 +1,6 @@
 // main.js
 
-// Initialize variables to store extracted data
+// Initialize variables to store relevant extracted data
 let displayVariables = {
   headlineToDisplay: '',
   descriptionToDisplay: '',
@@ -19,12 +19,11 @@ let displayVariables = {
 
 // Main script execution starts here
 (async function main() {
-  const scriptTags = document.querySelectorAll('script');
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
 
-  for (let scriptTag of scriptTags) {
+  for (let scriptTag of scripts) {
     const scriptContent = scriptTag.textContent.trim();
 
-    if (scriptContent.startsWith('{')) {
       try {
         const jsonData = JSON.parse(scriptContent);
 
@@ -36,7 +35,6 @@ let displayVariables = {
       } catch (error) {
         // Ignore JSON parsing errors for non-NewsArticle scripts
       }
-    }
   }
 
   try {
@@ -44,6 +42,7 @@ let displayVariables = {
     const selectors = await selectorsResponse.json();
 
     const { containerElement } = fetchAndExtractSelectors(selectors, displayVariables);
+
 
     const authors = displayVariables.authorToDisplay.map(person => person.name);
     const data = {
@@ -70,8 +69,10 @@ let displayVariables = {
     console.log('URL:', displayVariables.urlToDisplay);
     console.log('main Image url:', displayVariables.mainImageUrl)
 
-    const cleanedText = removeHTMLTags(displayVariables.articleContentToDisplay).replace(/\bhttps?:\/\/\S+/gi, '');
-    console.log('Cleaned text:', cleanedText);
+    const rawHtmlContent = displayVariables.articleContentToDisplay;
+    console.log('Raw HTML content:', rawHtmlContent);
+
+    const cleanedText = await cleanArticleContent(rawHtmlContent);
 
     const summary = await summarizeArticle(cleanedText);
     const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);

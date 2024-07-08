@@ -1,11 +1,4 @@
 // utils.js
-
-function removeHTMLTags(text) {
-    if (window.location.hostname === "www.publico.pt") {
-      text = text.replace(/<section class="stack stack--learn-more stack-social-tools">.*?<\/section>/gis, '');
-    }
-    return text.replace(/<[^>]*>/g, ' '); // Replace HTML tags with an empty string
-  }
   
   function countSentences(text) {
     const sentences = text.match(/[^.!?]*[.!?]/g);
