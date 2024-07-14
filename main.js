@@ -14,7 +14,8 @@ let displayVariables = {
   urlToDisplay: '',
   publisherToDisplay: '',
   imagesInArticle: 0,
-  mainImageUrl: ''
+  mainImageUrl: '',
+  mainImageCredits: ''
 };
 
 // Main script execution starts here
@@ -54,7 +55,7 @@ let displayVariables = {
       modified_date: displayVariables.dateModifiedToDisplay,
       keywords: displayVariables.keywordsToDisplay,
       source: displayVariables.publisherToDisplay,
-      imageUrl: displayVariables.mainImageUrl
+      imageUrl: displayVariables.mainImageUrl,
     };
 
     console.log('Headline:', displayVariables.headlineToDisplay);
@@ -68,6 +69,7 @@ let displayVariables = {
     console.log('Keywords:', displayVariables.keywordsToDisplay);
     console.log('URL:', displayVariables.urlToDisplay);
     console.log('main Image url:', displayVariables.mainImageUrl)
+    console.log('main Image credits:', displayVariables.mainImageCredits)
 
     const rawHtmlContent = displayVariables.articleContentToDisplay;
     console.log('Raw HTML content:', rawHtmlContent);
@@ -75,9 +77,13 @@ let displayVariables = {
     const cleanedText = await cleanArticleContent(rawHtmlContent);
 
     const summary = await summarizeArticle(cleanedText);
+
+    const analysisResult = await analyzeSources(cleanedText);
     const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
 
     containerElement.prepend(constructHTML(readingTime, fk, summary));
+    containerElement.append(`Credible sources found: ${analysisResult.sources_count}`);
+    containerElement.append(`Score: ${analysisResult.score}`);
 
     try {
       const entities = await extractEntities(cleanedText);

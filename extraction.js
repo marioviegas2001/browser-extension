@@ -48,6 +48,7 @@ function extractNewsArticleData(jsonData, displayVariables) {
       const headerImages = document.querySelectorAll(websiteSelectors.containerSelector + ' img');
       const articleImages = document.querySelectorAll(websiteSelectors.articleContentSelector + ' img');
       displayVariables.imagesInArticle = headerImages.length + articleImages.length;
+      displayVariables.mainImageCredits = document.querySelector(websiteSelectors.mainImageCredits)?.textContent.trim();
     }
   
     return { containerElement, websiteSelectors };

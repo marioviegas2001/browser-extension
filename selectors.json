@@ -4,7 +4,8 @@
       "titleSelector": ".headline",
       "descriptionSelector": ".story__blurb p",
       "articleContentSelector": ".story__body",
-      "mainImage": "story__media img"
+      "mainImage": "story__media img",
+      "mainImageCredits": ".credit"
     },
     "expresso.pt": {
       "containerSelector": ".main-container",

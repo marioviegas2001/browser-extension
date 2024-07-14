@@ -75,6 +75,35 @@ function postExtractedData(data) {
         console.error('Error summarizing article:', error);
     }
   }
+
+  async function analyzeSources(cleanedText) {
+    const url = 'http://localhost:8080/analyze_sources';
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const data = {
+        article: cleanedText
+    };
+  
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+  
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log('Credible sources count:', result.sources_count);
+        console.log('Score:', result.score);
+        return result;
+    } catch (error) {
+        console.error('Error analyzing sources:', error);
+    }
+  }
   
   async function extractEntities(text) {
     const apiKey = CONFIG.DANDELION_API_KEY;
