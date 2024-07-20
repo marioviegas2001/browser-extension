@@ -46,17 +46,7 @@ let displayVariables = {
 
 
     const authors = displayVariables.authorToDisplay.map(person => person.name);
-    const data = {
-      url: displayVariables.urlToDisplay,
-      title: displayVariables.headlineToDisplay,
-      author: authors,
-      published_date: displayVariables.datePublishedToDisplay,
-      created_date: displayVariables.dateCreatedToDisplay,
-      modified_date: displayVariables.dateModifiedToDisplay,
-      keywords: displayVariables.keywordsToDisplay,
-      source: displayVariables.publisherToDisplay,
-      imageUrl: displayVariables.mainImageUrl,
-    };
+    
 
     console.log('Headline:', displayVariables.headlineToDisplay);
     console.log('Description:', displayVariables.descriptionToDisplay);
@@ -80,10 +70,25 @@ let displayVariables = {
 
     const analysisResult = await analyzeSources(cleanedText);
     const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
-
     containerElement.prepend(constructHTML(readingTime, fk, summary));
     containerElement.append(`Credible sources found: ${analysisResult.sources_count}`);
     containerElement.append(`Score: ${analysisResult.score}`);
+
+    const data = {
+      url: displayVariables.urlToDisplay,
+      title: displayVariables.headlineToDisplay,
+      author: authors,
+      published_date: displayVariables.datePublishedToDisplay,
+      created_date: displayVariables.dateCreatedToDisplay,
+      modified_date: displayVariables.dateModifiedToDisplay,
+      keywords: displayVariables.keywordsToDisplay,
+      source: displayVariables.publisherToDisplay,
+      imageUrl: displayVariables.mainImageUrl,
+      cleaned_text: cleanedText,
+      summary: summary,
+      readingTime: readingTime,
+      fk: fk
+    };
 
     try {
       const entities = await extractEntities(cleanedText);
