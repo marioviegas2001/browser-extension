@@ -84,7 +84,7 @@ let displayVariables = {
       keywords: displayVariables.keywordsToDisplay,
       source: displayVariables.publisherToDisplay,
       imageUrl: displayVariables.mainImageUrl,
-      cleaned_text: cleanedText,
+      cleaned_text: rawHtmlContent,
       summary: summary,
       readingTime: readingTime,
       fk: fk
