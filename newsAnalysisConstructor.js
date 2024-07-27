@@ -1,4 +1,4 @@
-function createMainContainer() {
+/* function createMainContainer() {
   const containerDiv = document.createElement('div');
   containerDiv.classList.add('news-analysis-container');
 
@@ -85,3 +85,4 @@ function constructHTML(readingTime, readingGradeLevel, summary) {
 
   return containerDiv;
 }
+ */

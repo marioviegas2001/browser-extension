@@ -64,15 +64,13 @@ let displayVariables = {
     const rawHtmlContent = displayVariables.articleContentToDisplay;
     console.log('Raw HTML content:', rawHtmlContent);
 
-    const cleanedText = await cleanArticleContent(rawHtmlContent);
+    const {cleanedText, cleanedHTML} = await cleanArticleContent(rawHtmlContent);
+    console.log(cleanedHTML);
 
     const summary = await summarizeArticle(cleanedText);
 
     const analysisResult = await analyzeSources(cleanedText);
-    const { wordCount, sentenceCount, syllableCount, readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
-    containerElement.prepend(constructHTML(readingTime, fk, summary));
-    containerElement.append(`Credible sources found: ${analysisResult.sources_count}`);
-    containerElement.append(`Score: ${analysisResult.score}`);
+    const {readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
 
     const data = {
       url: displayVariables.urlToDisplay,
@@ -84,7 +82,7 @@ let displayVariables = {
       keywords: displayVariables.keywordsToDisplay,
       source: displayVariables.publisherToDisplay,
       imageUrl: displayVariables.mainImageUrl,
-      cleaned_text: rawHtmlContent,
+      cleaned_text: cleanedHTML,
       summary: summary,
       readingTime: readingTime,
       fk: fk

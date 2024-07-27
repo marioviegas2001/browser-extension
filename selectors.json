@@ -11,7 +11,7 @@
       "containerSelector": ".main-container",
       "titleSelector": ".title",
       "descriptionSelector": ".g-article-lead lead",
-      "articleContentSelector": ".full-article-fragment span",
+      "articleContentSelector": "#article-body-1",
       "mainImage": ".landscape source"
     }
 }

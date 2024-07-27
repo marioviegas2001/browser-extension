@@ -42,7 +42,10 @@ function postExtractedData(data) {
   
         const result = await response.json();
         console.log('Cleaned text:', result.cleaned_text);
-        return result.cleaned_text;
+        console.log('Cleaned html:', result.cleaned_html);
+        const cleanedText = result.cleaned_text;
+        const cleanedHTML = result.cleaned_html;
+        return {cleanedText, cleanedHTML};
     } catch (error) {
         console.error('Error cleaning article content:', error);
     }

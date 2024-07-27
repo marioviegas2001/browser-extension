@@ -31,6 +31,6 @@
     const readingTime = Math.ceil(wordCount / 238 + (imagesInArticle * 0.083));
     let fk = 0.883 * (wordCount / sentenceCount) + 17.347 * (syllableCount / wordCount) - 41.239;
     fk = Math.round(fk);
-    return { wordCount, sentenceCount, syllableCount, readingTime, fk };
+    return {readingTime, fk};
   }
   
