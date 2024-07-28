@@ -15,7 +15,8 @@ let displayVariables = {
   publisherToDisplay: '',
   imagesInArticle: 0,
   mainImageUrl: '',
-  mainImageCredits: ''
+  mainImageCredits: '',
+  logoToDisplay: ''
 };
 
 // Main script execution starts here
@@ -58,8 +59,9 @@ let displayVariables = {
     console.log('Author:', displayVariables.authorToDisplay);
     console.log('Keywords:', displayVariables.keywordsToDisplay);
     console.log('URL:', displayVariables.urlToDisplay);
-    console.log('main Image url:', displayVariables.mainImageUrl)
-    console.log('main Image credits:', displayVariables.mainImageCredits)
+    console.log('main Image url:', displayVariables.mainImageUrl);
+    console.log('main Image credits:', displayVariables.mainImageCredits);
+    console.log('LOGO', displayVariables.logoToDisplay);
 
     const rawHtmlContent = displayVariables.articleContentToDisplay;
     console.log('Raw HTML content:', rawHtmlContent);
@@ -81,6 +83,7 @@ let displayVariables = {
       modified_date: displayVariables.dateModifiedToDisplay,
       keywords: displayVariables.keywordsToDisplay,
       source: displayVariables.publisherToDisplay,
+      logo: displayVariables.logoToDisplay,
       imageUrl: displayVariables.mainImageUrl,
       cleaned_text: cleanedHTML,
       summary: summary,
@@ -92,11 +95,11 @@ let displayVariables = {
       const entities = await extractEntities(cleanedText);
       console.log('Extracted Entities:', entities);
 
-      // Sort entities by confidence and select the top 5
+      /* // Sort entities by confidence and select the top 5
       const topEntities = entities.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
 
       // Add top 5 entities to data (only the name)
-      data.entities = topEntities.map(entity => entity.spot);
+      data.entities = topEntities.map(entity => entity.spot);*/
 
       postExtractedData(data);
 

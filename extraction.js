@@ -14,10 +14,18 @@ function extractNewsArticleData(jsonData, displayVariables) {
     displayVariables.articleSectionToDisplay = articleSection || displayVariables.articleSectionToDisplay;
     displayVariables.articleContentToDisplay = articleBody || displayVariables.articleContentToDisplay;
     displayVariables.authorToDisplay = author || displayVariables.authorToDisplay;
-    displayVariables.keywordsToDisplay = keywords || displayVariables.keywordsToDisplay;
+      // Handle keywords being a string or a list
+    if (typeof keywords === 'string') {
+      displayVariables.keywordsToDisplay = [keywords];
+    } else if (Array.isArray(keywords)) {
+      displayVariables.keywordsToDisplay = keywords;
+    } else {
+      displayVariables.keywordsToDisplay = displayVariables.keywordsToDisplay;
+    }
     displayVariables.urlToDisplay = url || mainEntityOfPage ||displayVariables.urlToDisplay;
     displayVariables.publisherToDisplay = publisher?.name || displayVariables.publisherToDisplay;
-    displayVariables.mainImageUrl = image?.url || image[2] ||displayVariables.mainImageUrl;
+    displayVariables.logoToDisplay = publisher?.logo.url || displayVariables.publisherToDisplay;
+    displayVariables.mainImageUrl = image?.url || (Array.isArray(image) && image[2]) ||displayVariables.mainImageUrl;
   }
   
   function fetchAndExtractSelectors(selectors, displayVariables) {
