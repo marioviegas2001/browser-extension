@@ -72,6 +72,7 @@ let displayVariables = {
     const summary = await summarizeArticle(cleanedText);
 
     const analysisResult = await analyzeSources(cleanedText);
+    const lateralReadingQuestions = await getLateralReadingQuestions(cleanedText);
     const {readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
 
     const data = {
@@ -89,7 +90,8 @@ let displayVariables = {
       summary: summary,
       readingTime: readingTime,
       fk: fk,
-      sources_mentioned: analysisResult
+      sources_mentioned: analysisResult,
+      article_questions: lateralReadingQuestions
     };
 
     try {

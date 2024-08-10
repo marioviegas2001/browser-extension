@@ -107,6 +107,35 @@ function postExtractedData(data) {
         console.error('Error analyzing sources:', error);
     }
   }
+
+  async function getLateralReadingQuestions(cleanedText) {
+    const url = 'http://localhost:8080/lateral_reading_questions';
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const data = {
+        article: cleanedText
+    };
+  
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+  
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log('Lateral Reading Questions:', result.lateral_reading_questions);
+        return result.lateral_reading_questions;
+    } catch (error) {
+        console.error('Error getting lateral reading questions:', error);
+    }
+}
+
   
   async function extractEntities(text) {
     const apiKey = CONFIG.DANDELION_API_KEY;
