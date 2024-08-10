@@ -102,7 +102,7 @@ function postExtractedData(data) {
         const result = await response.json();
         console.log('Credible sources count:', result.sources_count);
         console.log('Score:', result.score);
-        return result;
+        return result.sources_count;
     } catch (error) {
         console.error('Error analyzing sources:', error);
     }

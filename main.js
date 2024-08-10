@@ -88,7 +88,8 @@ let displayVariables = {
       cleaned_text: cleanedHTML,
       summary: summary,
       readingTime: readingTime,
-      fk: fk
+      fk: fk,
+      sources_mentioned: analysisResult
     };
 
     try {
