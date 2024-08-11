@@ -79,6 +79,35 @@ function postExtractedData(data) {
     }
   }
 
+  async function categorizeArticle(articleText) {
+    const url = 'http://localhost:8080/categorize_article';
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const data = {
+        article_text: articleText
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Category:', result.category);
+        return result.category;
+    } catch (error) {
+        console.error('Error categorizing article:', error);
+    }
+}
+
+
   async function analyzeSources(cleanedText) {
     const url = 'http://localhost:8080/analyze_sources';
     const headers = {
