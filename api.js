@@ -165,6 +165,35 @@ function postExtractedData(data) {
     }
 }
 
+async function analyzeLanguage(cleanedText) {
+  const url = 'http://localhost:8080/analyze_language';
+  const headers = {
+      'Content-Type': 'application/json'
+  };
+  const data = {
+    article: cleanedText
+  };
+
+  try {
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Language Analysis:', result.language_analysis_report);
+      return result.language_analysis_report;
+  } catch (error) {
+      console.error('Error analyzing language:', error);
+  }
+}
+
+
   
   async function extractEntities(text) {
     const apiKey = CONFIG.DANDELION_API_KEY;

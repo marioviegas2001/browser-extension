@@ -73,6 +73,7 @@ let displayVariables = {
     const category = await categorizeArticle(cleanedText);
     const analysisResult = await analyzeSources(cleanedText);
     const lateralReadingQuestions = await getLateralReadingQuestions(cleanedText);
+    const languageAnalysis = await analyzeLanguage(cleanedText);
     const {readingTime, fk } = calculateReadabilityMetrics(cleanedText, displayVariables.imagesInArticle);
 
     const data = {
@@ -92,7 +93,8 @@ let displayVariables = {
       fk: fk,
       sources_mentioned: analysisResult,
       article_questions: lateralReadingQuestions,
-      article_category: category
+      article_category: category,
+      language_analysis: languageAnalysis
     };
 
     try {
